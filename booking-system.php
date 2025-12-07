@@ -555,7 +555,7 @@ function booking_send_customer_email($data) {
             <!-- Header con immagine e logo centrato -->
             <div style="position:relative;height:220px;overflow:hidden;border-radius:16px 16px 0 0;">
                 ' . ($email_header_image ? '<img src="' . $email_header_image . '" alt="" style="width:100%;height:220px;object-fit:cover;">' : '<div style="width:100%;height:220px;background:linear-gradient(135deg,#87CEEB,#E0F4FF);"></div>') . '
-                ' . ($email_logo ? '<img src="' . $email_logo . '" alt="Logo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:80px;z-index:10;">' : '') . '
+                ' . ($email_logo ? '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);padding:15px 25px;border-radius:12px;"><img src="' . $email_logo . '" alt="Logo" style="height:60px;display:block;"></div>' : '') . '
             </div>
             
             <!-- Contenuto -->
