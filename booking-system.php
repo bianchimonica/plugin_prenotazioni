@@ -550,16 +550,16 @@ function booking_send_customer_email($data) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">
-        <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+        <div style="max-width:600px;margin:0 auto;background-color:#ffffff;overflow:hidden;margin-top:20px;margin-bottom:20px;">
             
-            <!-- Header con immagine -->
-            <div style="position:relative;height:200px;background:' . $primary_color . ';border-radius:16px 16px 0 0;overflow:hidden;">
-                ' . ($email_header_image ? '<img src="' . $email_header_image . '" alt="" style="width:100%;height:200px;object-fit:cover;opacity:0.9;">' : '') . '
-                ' . ($email_logo ? '<img src="' . $email_logo . '" alt="Logo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:70px;z-index:10;">' : '') . '
+            <!-- Header con immagine e logo centrato -->
+            <div style="position:relative;height:220px;overflow:hidden;border-radius:16px 16px 0 0;">
+                ' . ($email_header_image ? '<img src="' . $email_header_image . '" alt="" style="width:100%;height:220px;object-fit:cover;">' : '<div style="width:100%;height:220px;background:linear-gradient(135deg,#87CEEB,#E0F4FF);"></div>') . '
+                ' . ($email_logo ? '<img src="' . $email_logo . '" alt="Logo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:80px;z-index:10;">' : '') . '
             </div>
             
             <!-- Contenuto -->
-            <div style="padding:30px;">
+            <div style="padding:30px 35px;">
                 
                 <h1 style="margin:0 0 8px 0;font-size:28px;font-weight:600;color:#333;text-align:center;">Prenotazione Confermata</h1>
                 <p style="margin:0 0 25px 0;font-size:15px;color:#666;text-align:center;">
@@ -567,7 +567,7 @@ function booking_send_customer_email($data) {
                 </p>
                 
                 <!-- Dettagli -->
-                <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:20px;">
+                <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:25px;">
                     <table style="width:100%;border-collapse:collapse;">
                         <tr>
                             <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Data</td>
@@ -588,16 +588,16 @@ function booking_send_customer_email($data) {
                     </table>
                 </div>
                 
-                <!-- Totali -->
-                <div style="display:flex;gap:12px;">
-                    <div style="flex:1;background:' . $primary_color . ';border-radius:12px;padding:16px;text-align:center;">
-                        <div style="color:rgba(255,255,255,0.8);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Biglietti</div>
-                        <div style="color:#fff;font-size:28px;font-weight:700;">' . $data['totale'] . '</div>
-                    </div>
-                    <div style="flex:1;background:#333;border-radius:12px;padding:16px;text-align:center;">
-                        <div style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Totale</div>
-                        <div style="color:#fff;font-size:28px;font-weight:700;">€' . number_format($data['prezzo'], 0, ',', '.') . '</div>
-                    </div>
+                <!-- Box Biglietti -->
+                <div style="background:#F07B7B;border-radius:14px;padding:18px;text-align:center;margin-bottom:12px;">
+                    <p style="margin:0 0 6px 0;color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:2px;">Totale Biglietti</p>
+                    <p style="margin:0;color:#ffffff;font-size:36px;font-weight:700;">' . $data['totale'] . '</p>
+                </div>
+                
+                <!-- Box Prezzo -->
+                <div style="background:#1a1a1a;border-radius:14px;padding:18px;text-align:center;">
+                    <p style="margin:0 0 6px 0;color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:2px;">Totale da Pagare</p>
+                    <p style="margin:0;color:#ffffff;font-size:36px;font-weight:700;">€' . number_format($data['prezzo'], 0, ',', '.') . '</p>
                 </div>
                 
             </div>
