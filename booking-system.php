@@ -532,8 +532,7 @@ function get_booking_availability() {
    FUNZIONE: INVIA EMAIL CLIENTE
 ============================================ */
 function booking_send_customer_email($data) {
-    $email_logo = get_option('booking_email_logo', '');
-    $email_header_image = get_option('booking_email_header_image', '');
+    $email_header_image = get_option('booking_email_header_image', 'https://www.dreamballoons.it/wp-content/uploads/2025/12/IMG_1437.png');
     $primary_color = get_option('booking_email_primary_color', '#1976D2');
     
     $date_obj = new DateTime($data['date']);
@@ -549,65 +548,74 @@ function booking_send_customer_email($data) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">
-        <div style="max-width:600px;margin:0 auto;background-color:#ffffff;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+    <body style="margin:0;padding:20px;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">
+        <div style="max-width:500px;margin:0 auto;background-color:#ffffff;border-radius:20px;overflow:hidden;">
             
-            <!-- Header con immagine e logo centrato -->
-            <div style="position:relative;height:220px;overflow:hidden;border-radius:16px 16px 0 0;">
-                ' . ($email_header_image ? '<img src="' . $email_header_image . '" alt="" style="width:100%;height:220px;object-fit:cover;">' : '<div style="width:100%;height:220px;background:linear-gradient(135deg,#87CEEB,#E0F4FF);"></div>') . '
-                ' . ($email_logo ? '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);padding:15px 25px;border-radius:12px;"><img src="' . $email_logo . '" alt="Logo" style="height:60px;display:block;"></div>' : '') . '
+            <!-- Header con immagine -->
+            <div style="height:180px;overflow:hidden;">
+                <img src="' . $email_header_image . '" alt="" style="width:100%;height:180px;object-fit:cover;display:block;">
+            </div>
+            
+            <!-- Logo centrato -->
+            <div style="text-align:center;margin-top:-40px;position:relative;z-index:10;">
+                <div style="display:inline-block;background:#222;padding:12px 20px;border-radius:10px;">
+                    <img src="https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png" alt="Dream Balloons" style="height:40px;display:block;">
+                </div>
             </div>
             
             <!-- Contenuto -->
-            <div style="padding:30px 35px;">
+            <div style="padding:25px 30px 30px;">
                 
-                <h1 style="margin:0 0 8px 0;font-size:28px;font-weight:600;color:#333;text-align:center;">Prenotazione Confermata</h1>
-                <p style="margin:0 0 25px 0;font-size:15px;color:#666;text-align:center;">
-                    Ciao <strong>' . $data['nome'] . '</strong>, grazie per aver prenotato!
+                <h1 style="margin:15px 0 8px;font-size:24px;font-weight:600;color:#333;text-align:center;">Prenotazione Confermata</h1>
+                <p style="margin:0 0 25px;font-size:15px;color:#888;text-align:center;">
+                    Ciao <strong style="color:#333;">' . $data['nome'] . '</strong>, grazie per aver prenotato!
                 </p>
                 
                 <!-- Dettagli -->
-                <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:25px;">
-                    <table style="width:100%;border-collapse:collapse;">
-                        <tr>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Data</td>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $day . ', ' . $date_formatted . '</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Orario</td>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $orario_label . '</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Adulti</td>
-                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['adulti'] . '</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:12px 0;color:#888;font-size:14px;">Bambini</td>
-                            <td style="padding:12px 0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['bambini'] . '</td>
-                        </tr>
-                    </table>
-                </div>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+                    <tr>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#999;font-size:14px;">Data</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $day . ', ' . $date_formatted . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#999;font-size:14px;">Orario</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $orario_label . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#999;font-size:14px;">Adulti</td>
+                        <td style="padding:14px 0;border-bottom:1px solid #f0f0f0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['adulti'] . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:14px 0;color:#999;font-size:14px;">Bambini</td>
+                        <td style="padding:14px 0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['bambini'] . '</td>
+                    </tr>
+                </table>
                 
-                <!-- Box Biglietti -->
-                <div style="background:#F07B7B;border-radius:14px;padding:18px;text-align:center;margin-bottom:12px;">
-                    <p style="margin:0 0 6px 0;color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:2px;">Totale Biglietti</p>
-                    <p style="margin:0;color:#ffffff;font-size:36px;font-weight:700;">' . $data['totale'] . '</p>
-                </div>
-                
-                <!-- Box Prezzo -->
-                <div style="background:#1a1a1a;border-radius:14px;padding:18px;text-align:center;">
-                    <p style="margin:0 0 6px 0;color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:2px;">Totale da Pagare</p>
-                    <p style="margin:0;color:#ffffff;font-size:36px;font-weight:700;">€' . number_format($data['prezzo'], 0, ',', '.') . '</p>
-                </div>
+                <!-- Box Totali affiancati -->
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        <td style="width:48%;padding-right:4%;">
+                            <div style="background:#F07B7B;border-radius:12px;padding:15px;text-align:center;">
+                                <div style="color:rgba(255,255,255,0.8);font-size:10px;text-transform:uppercase;letter-spacing:1px;">Biglietti</div>
+                                <div style="color:#fff;font-size:28px;font-weight:700;margin-top:4px;">' . $data['totale'] . '</div>
+                            </div>
+                        </td>
+                        <td style="width:48%;">
+                            <div style="background:#222;border-radius:12px;padding:15px;text-align:center;">
+                                <div style="color:rgba(255,255,255,0.6);font-size:10px;text-transform:uppercase;letter-spacing:1px;">Totale</div>
+                                <div style="color:#fff;font-size:28px;font-weight:700;margin-top:4px;">€' . number_format($data['prezzo'], 0, ',', '.') . '</div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
                 
             </div>
             
             <!-- Footer -->
-            <div style="background:#f8f9fa;padding:20px;text-align:center;border-top:1px solid #eee;">
-                <p style="margin:0;color:#888;font-size:13px;">Conserva questa email come conferma</p>
-                <p style="margin:8px 0 0;color:#888;font-size:12px;">
-                    <a href="mailto:info@dreamballoons.it" style="color:' . $primary_color . ';text-decoration:none;">info@dreamballoons.it</a> • 
-                    <a href="https://dreamballoons.it" style="color:' . $primary_color . ';text-decoration:none;">dreamballoons.it</a>
+            <div style="background:#fafafa;padding:18px;text-align:center;border-top:1px solid #f0f0f0;">
+                <p style="margin:0;color:#aaa;font-size:12px;">
+                    <a href="mailto:info@dreamballoons.it" style="color:#888;text-decoration:none;">info@dreamballoons.it</a> &nbsp;•&nbsp; 
+                    <a href="https://dreamballoons.it" style="color:#888;text-decoration:none;">dreamballoons.it</a>
                 </p>
             </div>
             
@@ -634,30 +642,56 @@ function booking_send_admin_email($data) {
     $day = $day_names[$date_obj->format('l')];
     $date_formatted = $date_obj->format('d/m/Y');
     $nome_pacchetto = ($data['tipo'] == 'privato') ? 'Volo Privato' : 'Volo di Gruppo';
+    $badge_color = ($data['tipo'] == 'privato') ? '#E65100' : '#1976D2';
     
     $message = '
     <!DOCTYPE html>
     <html>
-    <body style="margin:0;padding:20px;background:#f5f5f5;font-family:Arial,sans-serif;">
-        <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
-            <div style="background:#333;padding:20px;text-align:center;">
-                <h2 style="margin:0;color:#fff;font-size:18px;">🎈 Nuova Prenotazione</h2>
-                <p style="margin:8px 0 0;color:#F07B7B;">' . $nome_pacchetto . '</p>
+    <body style="margin:0;padding:20px;background:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">
+        <div style="max-width:450px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+            
+            <!-- Header -->
+            <div style="background:#fff;padding:25px 25px 20px;text-align:center;border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:32px;margin-bottom:10px;">🎈</div>
+                <h1 style="margin:0;font-size:20px;font-weight:600;color:#333;">Nuova Prenotazione</h1>
+                <span style="display:inline-block;margin-top:10px;background:' . $badge_color . ';color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;">' . $nome_pacchetto . '</span>
             </div>
-            <div style="padding:25px;">
-                <table style="width:100%;border-collapse:collapse;font-size:14px;">
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Cliente</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $data['nome'] . ' ' . $data['cognome'] . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Email</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #eee;">' . $data['email'] . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Telefono</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $data['telefono'] . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Data</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $day . ', ' . $date_formatted . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Orario</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . ($data['time'] == 'alba' ? 'Alba' : 'Tramonto') . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;">Persone</td><td style="padding:10px 0;font-weight:bold;text-align:right;">' . $data['totale'] . '</td></tr>
-                </table>
-                <div style="background:#1976D2;border-radius:10px;padding:15px;text-align:center;margin-top:20px;">
-                    <span style="color:#fff;font-size:14px;">TOTALE:</span>
-                    <span style="color:#fff;font-size:24px;font-weight:bold;margin-left:10px;">€' . number_format($data['prezzo'], 0, ',', '.') . '</span>
+            
+            <!-- Contenuto -->
+            <div style="padding:20px 25px;">
+                
+                <!-- Info Cliente -->
+                <div style="background:#f8f9fa;border-radius:12px;padding:18px;margin-bottom:15px;">
+                    <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">👤 Cliente</div>
+                    <div style="font-size:17px;font-weight:600;color:#333;margin-bottom:6px;">' . $data['nome'] . ' ' . $data['cognome'] . '</div>
+                    <div style="font-size:13px;color:#666;margin-bottom:4px;">📧 ' . $data['email'] . '</div>
+                    <div style="font-size:13px;color:#666;">📱 ' . $data['telefono'] . '</div>
                 </div>
+                
+                <!-- Dettagli Prenotazione -->
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                    <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #f0f0f0;color:#999;">Data</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #f0f0f0;color:#333;font-weight:600;text-align:right;">' . $day . ', ' . $date_formatted . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #f0f0f0;color:#999;">Orario</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #f0f0f0;color:#333;font-weight:600;text-align:right;">' . ($data['time'] == 'alba' ? '🌅 Alba' : '🌇 Tramonto') . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px 0;color:#999;">Persone</td>
+                        <td style="padding:12px 0;color:#333;font-weight:600;text-align:right;">' . $data['totale'] . ' (A:' . $data['adulti'] . ' B:' . $data['bambini'] . ')</td>
+                    </tr>
+                </table>
+                
             </div>
+            
+            <!-- Footer con Totale -->
+            <div style="background:#222;padding:20px 25px;text-align:center;">
+                <div style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Totale</div>
+                <div style="color:#fff;font-size:32px;font-weight:700;">€' . number_format($data['prezzo'], 0, ',', '.') . '</div>
+            </div>
+            
         </div>
     </body>
     </html>';
