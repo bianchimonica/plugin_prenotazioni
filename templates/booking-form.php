@@ -1,43 +1,25 @@
 <!-- ============================================
      BOOKING SYSTEM - TEMPLATE HTML
-     Versione: 3.0
+     Versione: 3.2
 ============================================ -->
 
 <?php $tipo_pacchetto = isset($tipo) ? $tipo : 'gruppo'; ?>
 
 <div id="booking-system" class="booking-wrapper" data-tipo="<?php echo esc_attr($tipo_pacchetto); ?>">
 
-    <!-- ===================================
-         STEP 1: SELEZIONE DATA
-    =================================== -->
+    <!-- STEP 1: SELEZIONE DATA -->
     <div id="step-date" class="booking-step active">
         
-        <!-- Header Minimal -->
-        <div style="text-align: center; margin-bottom: 10px;">
-            <div class="package-header <?php echo $tipo_pacchetto; ?>">
-                <?php if ($tipo_pacchetto == 'privato'): ?>
-                    <span class="package-icon">🎈</span>
-                    <h2>Volo Privato per Due</h2>
-                <?php else: ?>
-                    <span class="package-icon">👥</span>
-                    <h2>Volo di Gruppo</h2>
-                <?php endif; ?>
-            </div>
-        </div>
-        
         <h2 class="step-title">Scegli un giorno</h2>
+        
         <div class="material-card">
             <div class="calendar-header">
                 <button class="nav-btn" id="prev-month" aria-label="Mese precedente">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
                 </button>
                 <h3 id="current-month">Caricamento...</h3>
                 <button class="nav-btn" id="next-month" aria-label="Mese successivo">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                 </button>
             </div>
             
@@ -58,21 +40,15 @@
         <div class="step-navigation">
             <button class="btn-primary" id="btn-next-time" disabled>
                 Continua
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- ===================================
-         STEP 2: SELEZIONE ORARIO
-    =================================== -->
+    <!-- STEP 2: SELEZIONE ORARIO -->
     <div id="step-time" class="booking-step">
         <button class="btn-back" id="btn-back-date">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
             Indietro
         </button>
         
@@ -80,68 +56,62 @@
         
         <div class="info-message" id="time-info"></div>
         
-        <div class="material-card" style="text-align: center;">
-            <div class="time-option" data-time="alba" id="option-alba">
-                <div class="time-icon">🌅</div>
-                <div><strong>Alba</strong></div>
-                <div id="alba-slots-info"></div>
-            </div>
-            
-            <div class="time-option" data-time="tramonto" id="option-tramonto">
-                <div class="time-icon">🌇</div>
-                <div><strong>Tramonto</strong></div>
-                <div id="tramonto-slots-info"></div>
+        <div class="material-card">
+            <div class="time-options">
+                <div class="time-option" data-time="alba" id="option-alba">
+                    <div class="time-icon">🌅</div>
+                    <div class="time-label">Alba</div>
+                    <div class="time-slots" id="alba-slots-info"></div>
+                </div>
+                
+                <div class="time-option" data-time="tramonto" id="option-tramonto">
+                    <div class="time-icon">🌇</div>
+                    <div class="time-label">Tramonto</div>
+                    <div class="time-slots" id="tramonto-slots-info"></div>
+                </div>
             </div>
         </div>
         
         <div class="step-navigation">
             <button class="btn-primary" id="btn-next-tickets" disabled>
                 Continua
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- ===================================
-         STEP 3: SELEZIONE BIGLIETTI (solo per gruppo)
-    =================================== -->
+    <!-- STEP 3: SELEZIONE BIGLIETTI (solo gruppo) -->
     <?php if ($tipo_pacchetto == 'gruppo'): ?>
     <div id="step-tickets" class="booking-step">
         <button class="btn-back" id="btn-back-time">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
             Indietro
         </button>
         
         <h2 class="step-title">Seleziona i biglietti</h2>
         
         <div class="material-card">
-            <!-- Biglietto Adulto -->
             <div class="ticket-type">
-                <div>
-                    <strong style="font-size: 18px;">Adulto</strong><br>
-                    <small style="color: #999;">Età: 13+ anni</small>
+                <div class="ticket-info">
+                    <span class="ticket-name">Adulto</span>
+                    <span class="ticket-desc">Età: 13+ anni</span>
                 </div>
                 <div class="ticket-counter">
-                    <button class="counter-btn" data-type="adulto" data-action="minus" aria-label="Rimuovi adulto">−</button>
+                    <button class="counter-btn" data-type="adulto" data-action="minus">−</button>
                     <span class="counter-value" id="count-adulto">0</span>
-                    <button class="counter-btn" data-type="adulto" data-action="plus" aria-label="Aggiungi adulto">+</button>
+                    <button class="counter-btn" data-type="adulto" data-action="plus">+</button>
                 </div>
             </div>
 
-            <!-- Biglietto Bambino -->
             <div class="ticket-type">
-                <div>
-                    <strong style="font-size: 18px;">Bambino</strong><br>
-                    <small style="color: #999;">Età: 3-12 anni</small>
+                <div class="ticket-info">
+                    <span class="ticket-name">Bambino</span>
+                    <span class="ticket-desc">Età: 3-12 anni</span>
                 </div>
                 <div class="ticket-counter">
-                    <button class="counter-btn" data-type="bambino" data-action="minus" aria-label="Rimuovi bambino">−</button>
+                    <button class="counter-btn" data-type="bambino" data-action="minus">−</button>
                     <span class="counter-value" id="count-bambino">0</span>
-                    <button class="counter-btn" data-type="bambino" data-action="plus" aria-label="Aggiungi bambino">+</button>
+                    <button class="counter-btn" data-type="bambino" data-action="plus">+</button>
                 </div>
             </div>
 
@@ -179,22 +149,16 @@
         <div class="step-navigation">
             <button class="btn-primary" id="btn-next-customer" disabled>
                 Continua
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
     <?php endif; ?>
 
-    <!-- ===================================
-         STEP 4: DATI CLIENTE
-    =================================== -->
+    <!-- STEP 4: DATI CLIENTE -->
     <div id="step-customer" class="booking-step">
         <button class="btn-back" id="btn-back-tickets">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
             Indietro
         </button>
         
@@ -258,9 +222,7 @@
         <div class="step-navigation">
             <button class="btn-primary" id="btn-complete">
                 Conferma Prenotazione
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/></svg>
             </button>
         </div>
     </div>
