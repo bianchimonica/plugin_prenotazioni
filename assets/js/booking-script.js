@@ -361,6 +361,23 @@
         }
     }
 
+    function showLoadingOverlay() {
+        const overlay = document.createElement('div');
+        overlay.id = 'booking-loading-overlay';
+        overlay.innerHTML = `
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
+                <img src="https://www.dreamballoons.it/wp-content/uploads/2025/03/provagif.gif" alt="Caricamento..." style="width:120px;height:120px;margin-bottom:20px;">
+                <p style="font-size:16px;color:#666;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">Conferma in corso...</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById('booking-loading-overlay');
+        if (overlay) overlay.remove();
+    }
+
     function initBookingSubmission() {
         document.getElementById('btn-complete').addEventListener('click', () => {
             const form = document.getElementById('customer-form');
@@ -374,7 +391,9 @@
 
             const btn = document.getElementById('btn-complete');
             btn.disabled = true;
-            btn.textContent = 'Invio in corso...';
+            
+            // Mostra loading overlay con gif
+            showLoadingOverlay();
 
             fetch(bookingAjax.ajaxurl, {
                 method: 'POST',
@@ -395,10 +414,14 @@
             })
             .then(r => r.json())
             .then(data => {
+                hideLoadingOverlay();
                 if (data.success) showConfirmationScreen(true, '', data.data.prezzo);
                 else showConfirmationScreen(false, data.data ? data.data.message : 'Errore');
             })
-            .catch(() => showConfirmationScreen(false, 'Errore di connessione'));
+            .catch(() => {
+                hideLoadingOverlay();
+                showConfirmationScreen(false, 'Errore di connessione');
+            });
         });
     }
 
