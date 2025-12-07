@@ -1,6 +1,6 @@
 /* ============================================
    BOOKING SYSTEM - CSS
-   Versione: 3.2 - Pulito e responsive
+   Versione: 3.3 - Material Design Minimal
 ============================================ */
 
 * {
@@ -29,9 +29,9 @@
 /* Material Card */
 .material-card {
     background: #fff;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
     margin-bottom: 16px;
 }
 
@@ -194,7 +194,7 @@
 .info-message {
     background: #E3F2FD;
     padding: 12px 16px;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-bottom: 12px;
     font-size: 14px;
     color: #1976D2;
@@ -269,8 +269,8 @@
     text-align: center;
     padding: 12px;
     margin-top: 12px;
-    background: #f5f5f5;
-    border-radius: 10px;
+    background: #f8f9fa;
+    border-radius: 12px;
     font-size: 14px;
     color: #666;
 }
@@ -280,7 +280,7 @@
     padding: 14px;
     margin-top: 8px;
     background: #E3F2FD;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 17px;
     color: #1976D2;
 }
@@ -289,7 +289,7 @@
     background: #ffebee;
     color: #c62828;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     text-align: center;
     margin-top: 8px;
     font-size: 13px;
@@ -298,7 +298,7 @@
 /* Summary */
 .summary {
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px;
     margin-top: 16px;
 }
@@ -333,39 +333,73 @@
 
 .summary-total strong { color: #1976D2; }
 
-/* Form */
-.form-group { margin-bottom: 16px; }
+/* ============================================
+   FORM - Material Design Minimal
+============================================ */
+.form-group { 
+    margin-bottom: 20px; 
+}
 
 .form-group label {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     font-weight: 500;
-    font-size: 14px;
-    color: #555;
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .form-group input {
     width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #e8e8e8;
-    border-radius: 10px;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 14px;
     font-size: 16px;
-    background: #fff;
+    background: #f5f7fa;
+    color: #333;
+    transition: all 0.2s ease;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #1976D2;
+    background: #e8f4fc;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+}
+
+.form-group input::placeholder {
+    color: #aaa;
 }
 
 .form-group small {
     display: block;
-    margin-top: 4px;
+    margin-top: 6px;
     font-size: 12px;
+    color: #999;
+    padding-left: 4px;
+}
+
+/* Input con icona (opzionale) */
+.form-group.with-icon {
+    position: relative;
+}
+
+.form-group.with-icon input {
+    padding-left: 48px;
+}
+
+.form-group.with-icon .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
     color: #999;
 }
 
-/* Buttons */
+/* ============================================
+   Buttons
+============================================ */
 .step-navigation {
     margin-top: 20px;
 }
@@ -376,7 +410,7 @@
     background: #1976D2;
     color: #fff;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -384,6 +418,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #1565C0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
 }
 
 .btn-primary:disabled {
@@ -407,6 +448,11 @@
     color: #888;
     font-size: 14px;
     cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-back:hover {
+    color: #333;
 }
 
 .btn-back svg { 
@@ -414,7 +460,9 @@
     height: 20px; 
 }
 
-/* Confirmation Screen */
+/* ============================================
+   Confirmation Screen
+============================================ */
 .confirmation-screen {
     text-align: center;
     padding: 30px 16px;
@@ -485,7 +533,9 @@
 .detail-value { font-weight: 600; color: #333; font-size: 14px; }
 .detail-row.total .detail-value { color: #1976D2; font-size: 18px; }
 
-/* Responsive - stesse dimensioni su tutti i device */
+/* ============================================
+   Responsive
+============================================ */
 @media (min-width: 500px) {
     .booking-wrapper {
         padding: 20px;

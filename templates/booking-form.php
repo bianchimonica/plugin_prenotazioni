@@ -1,6 +1,6 @@
 <!-- ============================================
      BOOKING SYSTEM - TEMPLATE HTML
-     Versione: 3.2
+     Versione: 3.3
 ============================================ -->
 
 <?php $tipo_pacchetto = isset($tipo) ? $tipo : 'gruppo'; ?>
@@ -167,30 +167,28 @@
         <div class="material-card">
             <form id="customer-form">
                 <div class="form-group">
-                    <label for="nome">Nome *</label>
-                    <input type="text" id="nome" name="nome" required autocomplete="given-name">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" required autocomplete="given-name" placeholder="Mario">
                 </div>
 
                 <div class="form-group">
-                    <label for="cognome">Cognome *</label>
-                    <input type="text" id="cognome" name="cognome" required autocomplete="family-name">
+                    <label for="cognome">Cognome</label>
+                    <input type="text" id="cognome" name="cognome" required autocomplete="family-name" placeholder="Rossi">
                 </div>
 
                 <div class="form-group">
-                    <label for="codice_fiscale">Codice Fiscale *</label>
-                    <input type="text" id="codice_fiscale" name="codice_fiscale" required maxlength="16" pattern="[A-Za-z0-9]{16}" style="text-transform: uppercase;" autocomplete="off">
-                    <small>16 caratteri alfanumerici</small>
+                    <label for="codice_fiscale">Codice Fiscale</label>
+                    <input type="text" id="codice_fiscale" name="codice_fiscale" required maxlength="16" pattern="[A-Za-z0-9]{16}" style="text-transform: uppercase;" autocomplete="off" placeholder="RSSMRA80A01H501Z">
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required autocomplete="email">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="mario@email.com">
                 </div>
 
                 <div class="form-group">
-                    <label for="telefono">Telefono *</label>
-                    <input type="tel" id="telefono" name="telefono" required pattern="[0-9+\s\-]{9,15}" autocomplete="tel">
-                    <small>Es: +39 123 456 7890</small>
+                    <label for="telefono">Telefono</label>
+                    <input type="tel" id="telefono" name="telefono" required pattern="[0-9+\s\-]{9,15}" autocomplete="tel" placeholder="+39 333 1234567">
                 </div>
 
                 <div class="summary">

@@ -2,18 +2,14 @@
 /**
  * Plugin Name: Sistema Prenotazione Alba/Tramonto
  * Description: Sistema di prenotazione con calendario gestibile e pannello admin
- * Version: 3.0
+ * Version: 3.3
  * Author: Monkey Bianki
  */
 
-// Previeni accesso diretto
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) exit;
 
 /* ============================================
    CONFIGURAZIONE PREZZI
-   Modifica questi valori per aggiornare i prezzi
 ============================================ */
 define('PREZZO_GRUPPO_ADULTO', 280);
 define('PREZZO_GRUPPO_BAMBINO', 280);
@@ -28,7 +24,6 @@ function booking_system_install() {
     global $wpdb;
     $charset_collate = $wpdb->get_charset_collate();
 
-    // Tabella disponibilità
     $table_availability = $wpdb->prefix . 'booking_availability';
     $sql1 = "CREATE TABLE IF NOT EXISTS $table_availability (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -41,11 +36,10 @@ function booking_system_install() {
         tramonto_booked int DEFAULT 0,
         alba_privato tinyint(1) DEFAULT 0,
         tramonto_privato tinyint(1) DEFAULT 0,
-        PRIMARY KEY  (id),
+        PRIMARY KEY (id),
         UNIQUE KEY date (date)
     ) $charset_collate;";
 
-    // Tabella prenotazioni
     $table_bookings = $wpdb->prefix . 'booking_reservations';
     $sql2 = "CREATE TABLE IF NOT EXISTS $table_bookings (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -62,15 +56,29 @@ function booking_system_install() {
         totale_biglietti int NOT NULL,
         prezzo_totale decimal(10,2) DEFAULT 0,
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (id),
-        KEY booking_date (booking_date),
-        KEY time_slot (time_slot),
-        KEY tipo_pacchetto (tipo_pacchetto)
+        PRIMARY KEY (id)
     ) $charset_collate;";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql1);
     dbDelta($sql2);
+    
+    // Imposta opzioni default per email
+    if (!get_option('booking_email_admin')) {
+        update_option('booking_email_admin', get_option('admin_email'));
+    }
+    if (!get_option('booking_email_enabled')) {
+        update_option('booking_email_enabled', '1');
+    }
+    if (!get_option('booking_email_logo')) {
+        update_option('booking_email_logo', 'https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png');
+    }
+    if (!get_option('booking_email_header_image')) {
+        update_option('booking_email_header_image', 'https://www.dreamballoons.it/wp-content/uploads/2025/12/IMG_1437.png');
+    }
+    if (!get_option('booking_email_primary_color')) {
+        update_option('booking_email_primary_color', '#1976D2');
+    }
     
     booking_system_update_database();
 }
@@ -80,40 +88,21 @@ function booking_system_update_database() {
     $table_availability = $wpdb->prefix . 'booking_availability';
     $table_bookings = $wpdb->prefix . 'booking_reservations';
     
-    // Aggiorna tabella availability
     $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_availability'") == $table_availability;
-    
     if ($table_exists) {
         $columns = $wpdb->get_col("DESCRIBE $table_availability");
-        
-        if (!in_array('alba_booked', $columns)) {
-            $wpdb->query("ALTER TABLE $table_availability ADD COLUMN alba_booked int DEFAULT 0");
-        }
-        if (!in_array('tramonto_booked', $columns)) {
-            $wpdb->query("ALTER TABLE $table_availability ADD COLUMN tramonto_booked int DEFAULT 0");
-        }
-        if (!in_array('alba_privato', $columns)) {
-            $wpdb->query("ALTER TABLE $table_availability ADD COLUMN alba_privato tinyint(1) DEFAULT 0");
-        }
-        if (!in_array('tramonto_privato', $columns)) {
-            $wpdb->query("ALTER TABLE $table_availability ADD COLUMN tramonto_privato tinyint(1) DEFAULT 0");
-        }
+        if (!in_array('alba_booked', $columns)) $wpdb->query("ALTER TABLE $table_availability ADD COLUMN alba_booked int DEFAULT 0");
+        if (!in_array('tramonto_booked', $columns)) $wpdb->query("ALTER TABLE $table_availability ADD COLUMN tramonto_booked int DEFAULT 0");
+        if (!in_array('alba_privato', $columns)) $wpdb->query("ALTER TABLE $table_availability ADD COLUMN alba_privato tinyint(1) DEFAULT 0");
+        if (!in_array('tramonto_privato', $columns)) $wpdb->query("ALTER TABLE $table_availability ADD COLUMN tramonto_privato tinyint(1) DEFAULT 0");
     }
     
-    // Aggiorna tabella bookings
     $bookings_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_bookings'") == $table_bookings;
-    
     if ($bookings_exists) {
         $columns = $wpdb->get_col("DESCRIBE $table_bookings");
-        
-        if (!in_array('tipo_pacchetto', $columns)) {
-            $wpdb->query("ALTER TABLE $table_bookings ADD COLUMN tipo_pacchetto varchar(20) NOT NULL DEFAULT 'gruppo' AFTER time_slot");
-        }
-        if (!in_array('prezzo_totale', $columns)) {
-            $wpdb->query("ALTER TABLE $table_bookings ADD COLUMN prezzo_totale decimal(10,2) DEFAULT 0 AFTER totale_biglietti");
-        }
+        if (!in_array('tipo_pacchetto', $columns)) $wpdb->query("ALTER TABLE $table_bookings ADD COLUMN tipo_pacchetto varchar(20) NOT NULL DEFAULT 'gruppo' AFTER time_slot");
+        if (!in_array('prezzo_totale', $columns)) $wpdb->query("ALTER TABLE $table_bookings ADD COLUMN prezzo_totale decimal(10,2) DEFAULT 0 AFTER totale_biglietti");
     }
-    
     return true;
 }
 
@@ -123,28 +112,11 @@ function booking_system_update_database() {
 add_action('wp_enqueue_scripts', 'booking_system_enqueue_assets');
 
 function booking_system_enqueue_assets() {
-    wp_enqueue_style(
-        'booking-system-style',
-        plugins_url('assets/css/booking-style.css', __FILE__),
-        array(),
-        '3.0.0'
-    );
-    
-    wp_enqueue_script(
-        'booking-system-script',
-        plugins_url('assets/js/booking-script.js', __FILE__),
-        array(),
-        '3.0.0',
-        true
-    );
-    
+    wp_enqueue_style('booking-system-style', plugins_url('assets/css/booking-style.css', __FILE__), array(), '3.3.0');
+    wp_enqueue_script('booking-system-script', plugins_url('assets/js/booking-script.js', __FILE__), array(), '3.3.0', true);
     wp_localize_script('booking-system-script', 'bookingAjax', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
-        'prezzi' => array(
-            'gruppo_adulto' => PREZZO_GRUPPO_ADULTO,
-            'gruppo_bambino' => PREZZO_GRUPPO_BAMBINO,
-            'privato' => PREZZO_PRIVATO
-        )
+        'prezzi' => array('gruppo_adulto' => PREZZO_GRUPPO_ADULTO, 'gruppo_bambino' => PREZZO_GRUPPO_BAMBINO, 'privato' => PREZZO_PRIVATO)
     ));
 }
 
@@ -154,24 +126,150 @@ function booking_system_enqueue_assets() {
 add_action('admin_menu', 'booking_system_admin_menu');
 
 function booking_system_admin_menu() {
-    add_menu_page(
-        'Gestione Prenotazioni',
-        'Prenotazioni',
-        'manage_options',
-        'booking-system',
-        'booking_system_admin_page',
-        'dashicons-calendar-alt',
-        30
-    );
+    add_menu_page('Gestione Prenotazioni', 'Prenotazioni', 'manage_options', 'booking-system', 'booking_system_admin_page', 'dashicons-calendar-alt', 30);
+    add_submenu_page('booking-system', 'Tutte le Prenotazioni', 'Tutte le Prenotazioni', 'manage_options', 'booking-all-reservations', 'booking_all_reservations_page');
+    add_submenu_page('booking-system', 'Impostazioni Email', 'Impostazioni Email', 'manage_options', 'booking-email-settings', 'booking_email_settings_page');
+}
+
+/* ============================================
+   PAGINA: IMPOSTAZIONI EMAIL
+============================================ */
+function booking_email_settings_page() {
+    // Salva impostazioni
+    if (isset($_POST['save_email_settings'])) {
+        check_admin_referer('booking_email_settings_action', 'booking_email_nonce');
+        
+        update_option('booking_email_admin', sanitize_email($_POST['email_admin']));
+        update_option('booking_email_enabled', isset($_POST['email_enabled']) ? '1' : '0');
+        update_option('booking_email_logo', esc_url_raw($_POST['email_logo']));
+        update_option('booking_email_header_image', esc_url_raw($_POST['email_header_image']));
+        update_option('booking_email_primary_color', sanitize_hex_color($_POST['email_primary_color']));
+        
+        echo '<div class="notice notice-success"><p>✅ Impostazioni salvate!</p></div>';
+    }
     
-    add_submenu_page(
-        'booking-system',
-        'Tutte le Prenotazioni',
-        'Tutte le Prenotazioni',
-        'manage_options',
-        'booking-all-reservations',
-        'booking_all_reservations_page'
-    );
+    // Invia email di test
+    if (isset($_POST['send_test_email'])) {
+        check_admin_referer('booking_email_settings_action', 'booking_email_nonce');
+        
+        $test_email = sanitize_email($_POST['test_email_address']);
+        if ($test_email) {
+            $test_data = array(
+                'nome' => 'Mario',
+                'cognome' => 'Rossi',
+                'email' => $test_email,
+                'telefono' => '+39 123 456 7890',
+                'codice_fiscale' => 'RSSMRA80A01H501Z',
+                'date' => date('Y-m-d', strtotime('+7 days')),
+                'time' => 'alba',
+                'tipo' => 'gruppo',
+                'adulti' => 2,
+                'bambini' => 1,
+                'totale' => 3,
+                'prezzo' => 840
+            );
+            
+            $sent = booking_send_customer_email($test_data);
+            
+            if ($sent) {
+                echo '<div class="notice notice-success"><p>✅ Email di test inviata a ' . esc_html($test_email) . '</p></div>';
+            } else {
+                echo '<div class="notice notice-error"><p>❌ Errore invio email</p></div>';
+            }
+        }
+    }
+    
+    $email_admin = get_option('booking_email_admin', get_option('admin_email'));
+    $email_enabled = get_option('booking_email_enabled', '1');
+    $email_logo = get_option('booking_email_logo', '');
+    $email_header_image = get_option('booking_email_header_image', '');
+    $email_primary_color = get_option('booking_email_primary_color', '#1976D2');
+    ?>
+    <div class="wrap">
+        <h1>📧 Impostazioni Email</h1>
+        
+        <form method="post" action="">
+            <?php wp_nonce_field('booking_email_settings_action', 'booking_email_nonce'); ?>
+            
+            <div style="background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);max-width:700px;margin:20px 0;">
+                
+                <h2 style="margin-top:0;color:#1976D2;">📬 Notifiche Admin</h2>
+                
+                <table class="form-table">
+                    <tr>
+                        <th><label for="email_enabled">Ricevi notifiche</label></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="email_enabled" id="email_enabled" value="1" <?php checked($email_enabled, '1'); ?>>
+                                Invia email quando arriva una nuova prenotazione
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="email_admin">Email destinatario</label></th>
+                        <td>
+                            <input type="email" name="email_admin" id="email_admin" value="<?php echo esc_attr($email_admin); ?>" style="width:300px;padding:8px;">
+                            <p class="description">Le notifiche di nuove prenotazioni arriveranno a questo indirizzo</p>
+                        </td>
+                    </tr>
+                </table>
+                
+                <hr style="margin:30px 0;">
+                
+                <h2 style="color:#1976D2;">🎨 Personalizza Email Cliente</h2>
+                
+                <table class="form-table">
+                    <tr>
+                        <th><label for="email_logo">URL Logo</label></th>
+                        <td>
+                            <input type="url" name="email_logo" id="email_logo" value="<?php echo esc_attr($email_logo); ?>" style="width:100%;padding:8px;">
+                            <p class="description">Logo che appare in alto nell'email (consigliato: sfondo trasparente)</p>
+                            <?php if ($email_logo): ?>
+                                <div style="margin-top:10px;padding:15px;background:#f5f5f5;border-radius:8px;text-align:center;">
+                                    <img src="<?php echo esc_url($email_logo); ?>" style="max-height:60px;">
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="email_header_image">Immagine Header</label></th>
+                        <td>
+                            <input type="url" name="email_header_image" id="email_header_image" value="<?php echo esc_attr($email_header_image); ?>" style="width:100%;padding:8px;">
+                            <p class="description">Immagine di sfondo nella parte superiore dell'email</p>
+                            <?php if ($email_header_image): ?>
+                                <div style="margin-top:10px;padding:10px;background:#f5f5f5;border-radius:8px;">
+                                    <img src="<?php echo esc_url($email_header_image); ?>" style="max-width:100%;max-height:150px;border-radius:8px;">
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="email_primary_color">Colore principale</label></th>
+                        <td>
+                            <input type="color" name="email_primary_color" id="email_primary_color" value="<?php echo esc_attr($email_primary_color); ?>" style="width:60px;height:40px;padding:0;border:none;cursor:pointer;">
+                            <span style="margin-left:10px;color:#666;"><?php echo esc_html($email_primary_color); ?></span>
+                        </td>
+                    </tr>
+                </table>
+                
+                <p class="submit">
+                    <input type="submit" name="save_email_settings" class="button button-primary button-large" value="💾 Salva Impostazioni">
+                </p>
+            </div>
+            
+            <!-- Test Email -->
+            <div style="background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);max-width:700px;margin:20px 0;">
+                <h2 style="margin-top:0;color:#1976D2;">🧪 Invia Email di Test</h2>
+                <p style="color:#666;">Invia un'email di prova per vedere come apparirà ai clienti.</p>
+                
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <input type="email" name="test_email_address" placeholder="tua@email.com" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;">
+                    <input type="submit" name="send_test_email" class="button button-secondary" value="📤 Invia Test">
+                </div>
+            </div>
+        </form>
+    </div>
+    <?php
 }
 
 /* ============================================
@@ -182,7 +280,6 @@ function booking_all_reservations_page() {
     $table_bookings = $wpdb->prefix . 'booking_reservations';
     $table_avail = $wpdb->prefix . 'booking_availability';
     
-    // Gestione eliminazione
     if (isset($_GET['delete_booking']) && isset($_GET['_wpnonce'])) {
         if (wp_verify_nonce($_GET['_wpnonce'], 'delete_booking_' . $_GET['delete_booking'])) {
             $booking_id = intval($_GET['delete_booking']);
@@ -205,14 +302,13 @@ function booking_all_reservations_page() {
         }
     }
     
-    // LISTA PRENOTAZIONI
     $bookings = $wpdb->get_results("SELECT * FROM $table_bookings ORDER BY booking_date DESC, created_at DESC");
     ?>
     <div class="wrap">
         <h1>📋 Tutte le Prenotazioni</h1>
         
         <?php if (empty($bookings)): ?>
-            <p style="color: #999;">Nessuna prenotazione.</p>
+            <p style="color:#999;">Nessuna prenotazione.</p>
         <?php else: ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
@@ -225,7 +321,7 @@ function booking_all_reservations_page() {
                         <th>Contatti</th>
                         <th>Persone</th>
                         <th>Prezzo</th>
-                        <th style="width:100px;">Azioni</th>
+                        <th style="width:80px;">Azioni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -253,9 +349,7 @@ function booking_all_reservations_page() {
                             <td>
                                 <a href="?page=booking-all-reservations&delete_booking=<?php echo $booking->id; ?>&_wpnonce=<?php echo wp_create_nonce('delete_booking_' . $booking->id); ?>" 
                                    class="button button-small" style="color:#dc3545;"
-                                   onclick="return confirm('Eliminare questa prenotazione?');">
-                                    🗑️
-                                </a>
+                                   onclick="return confirm('Eliminare questa prenotazione?');">🗑️</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -280,7 +374,6 @@ function booking_system_admin_page() {
     
     booking_system_update_database();
 
-    // Salva disponibilità
     if (isset($_POST['save_availability'])) {
         check_admin_referer('booking_save_action', 'booking_nonce');
         
@@ -294,8 +387,7 @@ function booking_system_admin_page() {
         $start = new DateTime($date_start);
         $end = new DateTime($date_end);
         $end->modify('+1 day');
-        $interval = new DateInterval('P1D');
-        $daterange = new DatePeriod($start, $interval, $end);
+        $daterange = new DatePeriod($start, new DateInterval('P1D'), $end);
         
         $count = 0;
         foreach($daterange as $date) {
@@ -303,21 +395,15 @@ function booking_system_admin_page() {
             $existing = $wpdb->get_row($wpdb->prepare("SELECT id FROM $table_name WHERE date = %s", $date_str));
 
             if ($existing) {
-                $wpdb->update($table_name,
-                    array('alba_available' => $alba, 'tramonto_available' => $tramonto, 'alba_slots' => $alba_slots, 'tramonto_slots' => $tramonto_slots),
-                    array('date' => $date_str)
-                );
+                $wpdb->update($table_name, array('alba_available' => $alba, 'tramonto_available' => $tramonto, 'alba_slots' => $alba_slots, 'tramonto_slots' => $tramonto_slots), array('date' => $date_str));
             } else {
-                $wpdb->insert($table_name,
-                    array('date' => $date_str, 'alba_available' => $alba, 'tramonto_available' => $tramonto, 'alba_slots' => $alba_slots, 'tramonto_slots' => $tramonto_slots, 'alba_booked' => 0, 'tramonto_booked' => 0, 'alba_privato' => 0, 'tramonto_privato' => 0)
-                );
+                $wpdb->insert($table_name, array('date' => $date_str, 'alba_available' => $alba, 'tramonto_available' => $tramonto, 'alba_slots' => $alba_slots, 'tramonto_slots' => $tramonto_slots, 'alba_booked' => 0, 'tramonto_booked' => 0, 'alba_privato' => 0, 'tramonto_privato' => 0));
             }
             $count++;
         }
         echo '<div class="notice notice-success"><p>✅ Salvate ' . $count . ' date!</p></div>';
     }
 
-    // Elimina
     if (isset($_GET['delete']) && isset($_GET['_wpnonce'])) {
         if (wp_verify_nonce($_GET['_wpnonce'], 'delete_availability_' . $_GET['delete'])) {
             $wpdb->delete($table_name, array('id' => intval($_GET['delete'])));
@@ -334,7 +420,6 @@ function booking_system_admin_page() {
             <strong>💰 Prezzi:</strong> Gruppo: <strong>€<?php echo PREZZO_GRUPPO_ADULTO; ?></strong>/persona | Privato: <strong>€<?php echo PREZZO_PRIVATO; ?></strong> (coppia)
         </div>
         
-        <!-- Form -->
         <div style="background:white;padding:20px;margin:20px 0;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
             <h2>➕ Aggiungi Date</h2>
             <form method="post">
@@ -362,7 +447,6 @@ function booking_system_admin_page() {
             </form>
         </div>
 
-        <!-- Lista -->
         <div style="background:white;padding:20px;margin:20px 0;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
             <h2>📋 Date (<?php echo count($availabilities); ?>)</h2>
             <?php if (empty($availabilities)): ?>
@@ -440,10 +524,147 @@ function get_booking_availability() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'booking_availability';
     $tipo = isset($_POST['tipo']) ? sanitize_text_field($_POST['tipo']) : 'gruppo';
-    
     $results = $wpdb->get_results("SELECT * FROM $table_name WHERE date >= CURDATE() ORDER BY date ASC");
-    
     wp_send_json_success(array('dates' => $results, 'tipo' => $tipo));
+}
+
+/* ============================================
+   FUNZIONE: INVIA EMAIL CLIENTE
+============================================ */
+function booking_send_customer_email($data) {
+    $email_logo = get_option('booking_email_logo', '');
+    $email_header_image = get_option('booking_email_header_image', '');
+    $primary_color = get_option('booking_email_primary_color', '#1976D2');
+    
+    $date_obj = new DateTime($data['date']);
+    $day_names = array('Monday'=>'Lunedì','Tuesday'=>'Martedì','Wednesday'=>'Mercoledì','Thursday'=>'Giovedì','Friday'=>'Venerdì','Saturday'=>'Sabato','Sunday'=>'Domenica');
+    $day = $day_names[$date_obj->format('l')];
+    $date_formatted = $date_obj->format('d/m/Y');
+    $orario_label = ($data['time'] == 'alba') ? 'Alba' : 'Tramonto';
+    
+    $message = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">
+        <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+            
+            <!-- Header con immagine -->
+            <div style="position:relative;height:200px;background:' . $primary_color . ';border-radius:16px 16px 0 0;overflow:hidden;">
+                ' . ($email_header_image ? '<img src="' . $email_header_image . '" alt="" style="width:100%;height:200px;object-fit:cover;opacity:0.9;">' : '') . '
+                ' . ($email_logo ? '<img src="' . $email_logo . '" alt="Logo" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:70px;z-index:10;">' : '') . '
+            </div>
+            
+            <!-- Contenuto -->
+            <div style="padding:30px;">
+                
+                <h1 style="margin:0 0 8px 0;font-size:28px;font-weight:600;color:#333;text-align:center;">Prenotazione Confermata</h1>
+                <p style="margin:0 0 25px 0;font-size:15px;color:#666;text-align:center;">
+                    Ciao <strong>' . $data['nome'] . '</strong>, grazie per aver prenotato!
+                </p>
+                
+                <!-- Dettagli -->
+                <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:20px;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <tr>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Data</td>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $day . ', ' . $date_formatted . '</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Orario</td>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $orario_label . '</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#888;font-size:14px;">Adulti</td>
+                            <td style="padding:12px 0;border-bottom:1px solid #eee;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['adulti'] . '</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:12px 0;color:#888;font-size:14px;">Bambini</td>
+                            <td style="padding:12px 0;color:#333;font-size:14px;font-weight:600;text-align:right;">' . $data['bambini'] . '</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Totali -->
+                <div style="display:flex;gap:12px;">
+                    <div style="flex:1;background:' . $primary_color . ';border-radius:12px;padding:16px;text-align:center;">
+                        <div style="color:rgba(255,255,255,0.8);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Biglietti</div>
+                        <div style="color:#fff;font-size:28px;font-weight:700;">' . $data['totale'] . '</div>
+                    </div>
+                    <div style="flex:1;background:#333;border-radius:12px;padding:16px;text-align:center;">
+                        <div style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Totale</div>
+                        <div style="color:#fff;font-size:28px;font-weight:700;">€' . number_format($data['prezzo'], 0, ',', '.') . '</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Footer -->
+            <div style="background:#f8f9fa;padding:20px;text-align:center;border-top:1px solid #eee;">
+                <p style="margin:0;color:#888;font-size:13px;">Conserva questa email come conferma</p>
+                <p style="margin:8px 0 0;color:#888;font-size:12px;">
+                    <a href="mailto:info@dreamballoons.it" style="color:' . $primary_color . ';text-decoration:none;">info@dreamballoons.it</a> • 
+                    <a href="https://dreamballoons.it" style="color:' . $primary_color . ';text-decoration:none;">dreamballoons.it</a>
+                </p>
+            </div>
+            
+        </div>
+    </body>
+    </html>';
+
+    $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Dream Balloons <noreply@dreamballoons.it>');
+    
+    return wp_mail($data['email'], 'Prenotazione Confermata - Dream Balloons', $message, $headers);
+}
+
+/* ============================================
+   FUNZIONE: INVIA EMAIL ADMIN
+============================================ */
+function booking_send_admin_email($data) {
+    $email_enabled = get_option('booking_email_enabled', '1');
+    $email_admin = get_option('booking_email_admin', get_option('admin_email'));
+    
+    if ($email_enabled != '1' || empty($email_admin)) return false;
+    
+    $date_obj = new DateTime($data['date']);
+    $day_names = array('Monday'=>'Lunedì','Tuesday'=>'Martedì','Wednesday'=>'Mercoledì','Thursday'=>'Giovedì','Friday'=>'Venerdì','Saturday'=>'Sabato','Sunday'=>'Domenica');
+    $day = $day_names[$date_obj->format('l')];
+    $date_formatted = $date_obj->format('d/m/Y');
+    $nome_pacchetto = ($data['tipo'] == 'privato') ? 'Volo Privato' : 'Volo di Gruppo';
+    
+    $message = '
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:20px;background:#f5f5f5;font-family:Arial,sans-serif;">
+        <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
+            <div style="background:#333;padding:20px;text-align:center;">
+                <h2 style="margin:0;color:#fff;font-size:18px;">🎈 Nuova Prenotazione</h2>
+                <p style="margin:8px 0 0;color:#F07B7B;">' . $nome_pacchetto . '</p>
+            </div>
+            <div style="padding:25px;">
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Cliente</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $data['nome'] . ' ' . $data['cognome'] . '</td></tr>
+                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Email</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #eee;">' . $data['email'] . '</td></tr>
+                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Telefono</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $data['telefono'] . '</td></tr>
+                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Data</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $day . ', ' . $date_formatted . '</td></tr>
+                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Orario</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . ($data['time'] == 'alba' ? 'Alba' : 'Tramonto') . '</td></tr>
+                    <tr><td style="padding:10px 0;color:#888;">Persone</td><td style="padding:10px 0;font-weight:bold;text-align:right;">' . $data['totale'] . '</td></tr>
+                </table>
+                <div style="background:#1976D2;border-radius:10px;padding:15px;text-align:center;margin-top:20px;">
+                    <span style="color:#fff;font-size:14px;">TOTALE:</span>
+                    <span style="color:#fff;font-size:24px;font-weight:bold;margin-left:10px;">€' . number_format($data['prezzo'], 0, ',', '.') . '</span>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>';
+
+    $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Dream Balloons <noreply@dreamballoons.it>');
+    
+    return wp_mail($email_admin, 'Nuova Prenotazione ' . $nome_pacchetto . ' - ' . $data['nome'] . ' ' . $data['cognome'], $message, $headers);
 }
 
 /* ============================================
@@ -467,7 +688,6 @@ function handle_booking_submission() {
     $email = sanitize_email($_POST['email']);
     $telefono = sanitize_text_field($_POST['telefono']);
 
-    // Calcola prezzo
     if ($tipo == 'privato') {
         $prezzo = PREZZO_PRIVATO;
         $totale = 2;
@@ -477,7 +697,6 @@ function handle_booking_submission() {
         $prezzo = ($adulti * PREZZO_GRUPPO_ADULTO) + ($bambini * PREZZO_GRUPPO_BAMBINO);
     }
 
-    // Verifica disponibilità
     $table_avail = $wpdb->prefix . 'booking_availability';
     $availability = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_avail WHERE date = %s", $date));
     
@@ -488,7 +707,6 @@ function handle_booking_submission() {
     
     $privato_field = ($time == 'alba') ? 'alba_privato' : 'tramonto_privato';
     $booked_field = ($time == 'alba') ? 'alba_booked' : 'tramonto_booked';
-    $slots_field = ($time == 'alba') ? 'alba_slots' : 'tramonto_slots';
     
     $is_privato = ($time == 'alba') ? (isset($availability->alba_privato) ? $availability->alba_privato : 0) : (isset($availability->tramonto_privato) ? $availability->tramonto_privato : 0);
     $current_booked = ($time == 'alba') ? $availability->alba_booked : $availability->tramonto_booked;
@@ -511,7 +729,6 @@ function handle_booking_submission() {
         }
     }
 
-    // Salva prenotazione
     $table_bookings = $wpdb->prefix . 'booking_reservations';
     $inserted = $wpdb->insert($table_bookings, array(
         'booking_date' => $date, 'time_slot' => $time, 'tipo_pacchetto' => $tipo,
@@ -525,145 +742,31 @@ function handle_booking_submission() {
         return;
     }
 
-    // Aggiorna disponibilità
     if ($tipo == 'privato') {
         $wpdb->query($wpdb->prepare("UPDATE $table_avail SET $privato_field = 1 WHERE date = %s", $date));
     } else {
         $wpdb->query($wpdb->prepare("UPDATE $table_avail SET $booked_field = $booked_field + %d WHERE date = %s", $totale, $date));
     }
 
-    // Email
-    $date_obj = new DateTime($date);
-    $day_names = array('Monday'=>'Lunedì','Tuesday'=>'Martedì','Wednesday'=>'Mercoledì','Thursday'=>'Giovedì','Friday'=>'Venerdì','Saturday'=>'Sabato','Sunday'=>'Domenica');
-    $day = $day_names[$date_obj->format('l')];
-    $date_formatted = $date_obj->format('d/m/Y');
-    $nome_pacchetto = ($tipo == 'privato') ? 'Volo Privato per Due' : 'Volo di Gruppo';
-    $orario_label = ($time == 'alba') ? 'Alba' : 'Tramonto';
-
-    // EMAIL CLIENTE - Stile elegante con immagine
-    $message_customer = '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Georgia,Times,serif;">
-        <div style="max-width:600px;margin:0 auto;background-color:#ffffff;">
-            
-            <!-- Header con immagine mongolfiera -->
-            <div style="position:relative;height:260px;overflow:hidden;">
-                <!-- Logo PNG -->
-                <img src="https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png" alt="Dream Balloons" style="position:absolute;top:20px;left:20px;height:50px;z-index:10;">
-                <!-- Immagine mongolfiera come sfondo -->
-                <img src="https://www.dreamballoons.it/wp-content/uploads/2025/12/IMG_1437.png" alt="" style="width:100%;height:260px;object-fit:cover;">
-            </div>
-            
-            <!-- Onda bianca SVG -->
-            <div style="margin-top:-80px;position:relative;z-index:5;">
-                <svg viewBox="0 0 600 100" style="display:block;width:100%;" preserveAspectRatio="none">
-                    <path d="M0,100 L0,60 C100,90 200,30 300,50 C400,70 500,20 600,40 L600,100 Z" fill="#ffffff"/>
-                </svg>
-            </div>
-            
-            <!-- Contenuto principale -->
-            <div style="padding:0 35px 35px 35px;background:#ffffff;margin-top:-5px;">
-                
-                <!-- Titolo -->
-                <h1 style="margin:0 0 5px 0;font-size:32px;font-weight:bold;color:#1a1a1a;text-align:center;font-family:Georgia,Times,serif;">Prenotazione</h1>
-                <h1 style="margin:0 0 20px 0;font-size:32px;font-weight:bold;color:#1a1a1a;text-align:center;font-family:Georgia,Times,serif;">Confermata</h1>
-                
-                <!-- Messaggio personalizzato -->
-                <p style="font-size:16px;color:#555;text-align:center;margin:0 0 28px 0;line-height:1.5;">
-                    Ciao <strong style="color:#1a1a1a;">' . $nome . '</strong>, grazie per aver prenotato<br>la tua esperienza in mongolfiera!
-                </p>
-                
-                <!-- Tabella dettagli -->
-                <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-                    <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#888;font-size:15px;">Data</td>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#1a1a1a;font-size:15px;font-weight:bold;text-align:right;">' . $day . ', ' . $date_formatted . '</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#888;font-size:15px;">Orario</td>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#1a1a1a;font-size:15px;font-weight:bold;text-align:right;">' . $orario_label . '</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#888;font-size:15px;">Adulti</td>
-                        <td style="padding:14px 0;border-bottom:1px solid #eee;color:#1a1a1a;font-size:15px;font-weight:bold;text-align:right;">' . $adulti . '</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:14px 0;color:#888;font-size:15px;">Bambini</td>
-                        <td style="padding:14px 0;color:#1a1a1a;font-size:15px;font-weight:bold;text-align:right;">' . $bambini . '</td>
-                    </tr>
-                </table>
-                
-                <!-- Box inline: Biglietti + Prezzo -->
-                <table style="width:100%;border-collapse:collapse;">
-                    <tr>
-                        <td style="width:48%;padding-right:2%;">
-                            <div style="background:#F07B7B;border-radius:12px;padding:14px;text-align:center;">
-                                <p style="margin:0 0 4px 0;color:rgba(255,255,255,0.85);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-family:Arial,sans-serif;">Biglietti</p>
-                                <p style="margin:0;color:#ffffff;font-size:28px;font-weight:bold;font-family:Georgia,serif;">' . $totale . '</p>
-                            </div>
-                        </td>
-                        <td style="width:48%;padding-left:2%;">
-                            <div style="background:#1a1a1a;border-radius:12px;padding:14px;text-align:center;">
-                                <p style="margin:0 0 4px 0;color:rgba(255,255,255,0.6);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-family:Arial,sans-serif;">Totale</p>
-                                <p style="margin:0;color:#ffffff;font-size:28px;font-weight:bold;font-family:Georgia,serif;">€' . number_format($prezzo, 0, ',', '.') . '</p>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                
-            </div>
-            
-            <!-- Footer -->
-            <div style="background:#f8f8f8;padding:20px 35px;text-align:center;border-top:1px solid #eee;">
-                <p style="margin:0 0 6px 0;color:#888;font-size:13px;">Conserva questa email come conferma</p>
-                <p style="margin:0;color:#888;font-size:13px;">
-                    <a href="mailto:info@dreamballoons.it" style="color:#F07B7B;text-decoration:none;">info@dreamballoons.it</a> &nbsp;•&nbsp; 
-                    <a href="https://dreamballoons.it" style="color:#F07B7B;text-decoration:none;">dreamballoons.it</a>
-                </p>
-            </div>
-            
-        </div>
-    </body>
-    </html>';
-
-    // EMAIL ADMIN - Versione compatta
-    $message_admin = '
-    <!DOCTYPE html>
-    <html>
-    <body style="margin:0;padding:20px;background:#f5f5f5;font-family:Arial,sans-serif;">
-        <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-            <div style="background:#1a1a1a;padding:20px;text-align:center;">
-                <h2 style="margin:0;color:#fff;font-size:18px;">🎈 Nuova Prenotazione</h2>
-                <p style="margin:8px 0 0;color:#F07B7B;font-size:14px;">' . $nome_pacchetto . '</p>
-            </div>
-            <div style="padding:25px;">
-                <table style="width:100%;border-collapse:collapse;font-size:14px;">
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Cliente</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $nome . ' ' . $cognome . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Email</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #eee;"><a href="mailto:' . $email . '" style="color:#F07B7B;">' . $email . '</a></td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Telefono</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $telefono . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Cod. Fiscale</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #eee;">' . $codice_fiscale . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Data</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $day . ', ' . $date_formatted . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;border-bottom:1px solid #eee;">Orario</td><td style="padding:10px 0;font-weight:bold;text-align:right;border-bottom:1px solid #eee;">' . $orario_label . '</td></tr>
-                    <tr><td style="padding:10px 0;color:#888;">Persone</td><td style="padding:10px 0;font-weight:bold;text-align:right;">' . $totale . ' (A:' . $adulti . ' B:' . $bambini . ')</td></tr>
-                </table>
-                <div style="background:#F07B7B;border-radius:10px;padding:15px;text-align:center;margin-top:20px;">
-                    <span style="color:#fff;font-size:14px;">TOTALE:</span>
-                    <span style="color:#fff;font-size:24px;font-weight:bold;margin-left:10px;">€' . number_format($prezzo, 0, ',', '.') . '</span>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>';
-
-    $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Dream Balloons <noreply@dreamballoons.it>');
+    // Prepara dati per email
+    $email_data = array(
+        'nome' => $nome,
+        'cognome' => $cognome,
+        'email' => $email,
+        'telefono' => $telefono,
+        'codice_fiscale' => $codice_fiscale,
+        'date' => $date,
+        'time' => $time,
+        'tipo' => $tipo,
+        'adulti' => $adulti,
+        'bambini' => $bambini,
+        'totale' => $totale,
+        'prezzo' => $prezzo
+    );
     
-    // wp_mail('info@dreamballoons.it', 'Nuova Prenotazione ' . $nome_pacchetto . ' - ' . $nome . ' ' . $cognome, $message_admin, $headers);
-    wp_mail($email, 'Conferma Prenotazione - Dream Balloons', $message_customer, $headers);
+    // Invia email
+    booking_send_customer_email($email_data);
+    booking_send_admin_email($email_data);
 
     wp_send_json_success(array('message' => 'Prenotazione confermata', 'prezzo' => $prezzo));
 }
