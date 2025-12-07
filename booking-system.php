@@ -557,7 +557,7 @@ function booking_send_customer_email($data) {
             </div>
             
             <!-- Logo centrato -->
-            <div style="text-align:center;margin-top:-45px;margin-bottom:10px;position:relative;z-index:10;">
+            <div style="text-align:center;margin-top:-30px;margin-bottom:10px;position:relative;z-index:10;">
                 <img src="https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png" alt="Dream Balloons" style="height:50px;">
             </div>
             
