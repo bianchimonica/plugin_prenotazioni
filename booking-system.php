@@ -557,10 +557,8 @@ function booking_send_customer_email($data) {
             </div>
             
             <!-- Logo centrato -->
-            <div style="text-align:center;margin-top:-40px;position:relative;z-index:10;">
-                <div style="display:inline-block;background:#222;padding:12px 20px;border-radius:10px;">
-                    <img src="https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png" alt="Dream Balloons" style="height:40px;display:block;">
-                </div>
+            <div style="text-align:center;margin-top:-45px;margin-bottom:10px;position:relative;z-index:10;">
+                <img src="https://www.dreamballoons.it/wp-content/uploads/2024/12/logo_su_nero.png" alt="Dream Balloons" style="height:50px;">
             </div>
             
             <!-- Contenuto -->
