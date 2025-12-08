@@ -362,18 +362,24 @@
     }
 
     function showLoadingOverlay() {
+        // Blocca lo scroll della pagina
+        document.body.style.overflow = 'hidden';
+        
         const overlay = document.createElement('div');
         overlay.id = 'booking-loading-overlay';
         overlay.innerHTML = `
-            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
-                <img src="https://www.dreamballoons.it/wp-content/uploads/2025/03/provagif.gif" alt="Caricamento..." style="width:120px;height:120px;margin-bottom:20px;">
-                <p style="font-size:16px;color:#666;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">Conferma in corso...</p>
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(232,244,253,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);">
+                <img src="https://www.dreamballoons.it/wp-content/uploads/2025/12/caricamento.gif" alt="Caricamento..." style="width:100px;height:100px;margin-bottom:15px;">
+                <p style="font-size:15px;color:#1976D2;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-weight:500;">Conferma in corso...</p>
             </div>
         `;
         document.body.appendChild(overlay);
     }
 
     function hideLoadingOverlay() {
+        // Ripristina lo scroll della pagina
+        document.body.style.overflow = '';
+        
         const overlay = document.getElementById('booking-loading-overlay');
         if (overlay) overlay.remove();
     }
